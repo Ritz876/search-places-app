@@ -1,59 +1,92 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import "./App.css";
+import axios from "axios";
 import SearchBox from "./components/SearchBox";
 import Table from "./components/Table";
 import Pagination from "./components/Pagination";
+import LimitInput from "./components/LimitInput";
 import "./App.css";
-import axios from "axios";
 
-const App = () => {
-  const [query, setQuery] = useState("");
+const API_KEY = process.env.REACT_APP_API_KEY;
+const API_URL = process.env.REACT_APP_API_URL;
+const API_HOST = "wft-geo-db.p.rapidapi.com";
+
+function App() {
+  const [searchTerm, setSearchTerm] = useState("");
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
   const [limit, setLimit] = useState(5);
-  const [page, setPage] = useState(1);
-  const [totalResults, setTotalResults] = useState(0);
+  console.log(totalItems);
+  console.log(itemsPerPage);
 
-  const fetchCities = async () => {
-    if (!query) return;
+  const fetchCities = useCallback(async () => {
+    if (!searchTerm) return;
+
     setLoading(true);
-
-    const options = {
-      method: "GET",
-      url: "https://wft-geo-db.p.rapidapi.com/v1/geo/cities",
-      headers: {
-        "x-rapidapi-key": "8300ba030emsheb5ebb9abfa0f2cp1ed930jsn993b4e957ab0", // get your key from https://rapidapi.com/wirefreethought/api/geodb-cities
-        "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
-      },
-    };
-
     try {
-      const response = await axios.request(options);
+      const response = await axios.get(API_URL, {
+        headers: {
+          "x-rapidapi-key": API_KEY,
+          "x-rapidapi-host": "wft-geo-db.p.rapidapi.com",
+        },
+        params: {
+          namePrefix: searchTerm,
+          limit: limit,
+          offset: (currentPage - 1) * limit,
+        },
+      });
       setCities(response.data.data);
-      setTotalResults(response.data.metadata.totalCount);
+      setTotalItems(response.data.metadata.totalCount);
     } catch (error) {
       console.error("Error fetching cities:", error);
-    } finally {
-      setLoading(false);
     }
-  };
+    setLoading(false);
+  }, [searchTerm, currentPage, limit]);
 
   useEffect(() => {
-    fetchCities();
-  }, [query, limit, page]);
+    const debounceTimer = setTimeout(() => {
+      fetchCities();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [fetchCities]);
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleLimitChange = (newLimit) => {
+    setLimit(newLimit);
+    setCurrentPage(1);
+  };
 
   return (
-    <div className="app-container">
-      <SearchBox setQuery={setQuery} />
-      <Table cities={cities} loading={loading} />
-      <Pagination
-        totalResults={totalResults}
-        limit={limit}
-        page={page}
-        setPage={setPage}
-        setLimit={setLimit}
-      />
+    <div className="app">
+      <SearchBox onSearch={handleSearch} />
+      <Table cities={cities} loading={loading} searchTerm={searchTerm} />
+      <div className="pagination-container">
+        <Pagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+        />
+        <LimitInput
+          limit={limit}
+          onLimitChange={handleLimitChange}
+          onItemPerPage={setItemsPerPage}
+        />
+      </div>
     </div>
   );
-};
+}
 
 export default App;

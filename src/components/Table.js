@@ -1,16 +1,20 @@
 import React from "react";
 
-const Table = ({ cities, loading }) => {
+function Table({ cities, loading, searchTerm }) {
   if (loading) {
-    return <div className="spinner">Loading...</div>;
+    return <div class="spinner"></div>;
+  }
+
+  if (!searchTerm) {
+    return <div>Start searching</div>;
   }
 
   if (cities.length === 0) {
-    return <div className="no-results">No result found</div>;
+    return <div>No results found</div>;
   }
 
   return (
-    <table className="city-table">
+    <table>
       <thead>
         <tr>
           <th>#</th>
@@ -26,8 +30,9 @@ const Table = ({ cities, loading }) => {
             <td>
               {city.country}{" "}
               <img
-                src={`https://flagsapi.com/${city.countryCode}/flat/32.png`}
-                alt={city.country}
+                src={`https://flagsapi.com/${city.countryCode}/flat/16.png`}
+                alt={`${city.country} flag`}
+                style={{ verticalAlign: "middle" }}
               />
             </td>
           </tr>
@@ -35,6 +40,6 @@ const Table = ({ cities, loading }) => {
       </tbody>
     </table>
   );
-};
+}
 
 export default Table;

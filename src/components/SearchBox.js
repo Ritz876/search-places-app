@@ -1,35 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-const SearchBox = ({ setQuery }) => {
+function SearchBox({ onSearch }) {
   const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = (e) => {
-    if (e.key === "Enter") {
-      setQuery(searchTerm);
-    }
-  };
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
-    const focusSearchBox = (e) => {
+    const handleKeyPress = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "/") {
-        document.getElementById("search-box").focus();
+        e.preventDefault();
+        searchInputRef.current.focus();
       }
     };
-    window.addEventListener("keydown", focusSearchBox);
-    return () => window.removeEventListener("keydown", focusSearchBox);
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
   }, []);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch(searchTerm);
+  };
+
   return (
-    <input
-      id="search-box"
-      className="search-box"
-      type="text"
-      placeholder="Search places..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      onKeyDown={handleSearch}
-    />
+    <form className="Form" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        ref={searchInputRef}
+        className="search-box"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search cities..."
+      />
+      <span className="keyboard-shortcut">Ctrl + /</span>
+    </form>
   );
-};
+}
 
 export default SearchBox;

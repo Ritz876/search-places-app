@@ -1,33 +1,50 @@
 import React from "react";
 
-const Pagination = ({ totalResults, limit, page, setPage, setLimit }) => {
-  const totalPages = Math.ceil(totalResults / limit);
+function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange }) {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  console.log(totalItems, itemsPerPage);
+  console.log(totalPages);
+  if (totalPages <= 1) {
+    return null;
+  }
 
-  const handleLimitChange = (e) => {
-    const value = Math.min(10, Math.max(1, e.target.value));
-    setLimit(value);
-  };
-
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+  console.log(pageNumbers);
   return (
-    <div className="pagination">
-      <button onClick={() => setPage((prev) => Math.max(1, prev - 1))}>
-        Previous
-      </button>
-      <span>
-        {page} / {totalPages}
-      </span>
-      <button onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
-        Next
-      </button>
-      <input
-        type="number"
-        min="1"
-        max="10"
-        value={limit}
-        onChange={handleLimitChange}
-      />
-    </div>
+    <nav>
+      <ul className="pagination">
+        <li>
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+        </li>
+        {pageNumbers.map((number) => (
+          <li key={number}>
+            <button
+              onClick={() => onPageChange(number)}
+              disabled={currentPage === number}
+            >
+              {number}
+            </button>
+          </li>
+        ))}
+        <li>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
   );
-};
+}
 
 export default Pagination;
