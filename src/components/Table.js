@@ -1,6 +1,7 @@
 import React from "react";
 
 function Table({ cities, loading, searchTerm }) {
+  //Table Page
   if (loading) {
     return <div class="spinner"></div>;
   }

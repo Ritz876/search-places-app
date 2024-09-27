@@ -12,6 +12,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 const API_HOST = "wft-geo-db.p.rapidapi.com";
 
 function App() {
+  //App File
   const [searchTerm, setSearchTerm] = useState("");
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);

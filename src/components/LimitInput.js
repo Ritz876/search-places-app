@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 function LimitInput({ limit, onLimitChange, onItemPerPage }) {
+  //Limit Input Page
   const [inputValue, setInputValue] = useState(limit);
 
   const handleChange = (e) => {

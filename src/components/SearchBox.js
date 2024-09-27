@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 function SearchBox({ onSearch }) {
+  //SearchBox Page
   const [searchTerm, setSearchTerm] = useState("");
   const searchInputRef = useRef(null);
 
